@@ -7,10 +7,10 @@ class Queue:
     def enqueue(self, element):
         self.queue.append(element)
     def dequeue(self):
-        if self.isEmpty():
+        if self.is_empty():
             return None
         return self.queue.pop(0)
-    def isEmpty(self):
+    def is_empty(self):
         return len(self.queue) == 0
     def size(self):
         return len(self.queue)
@@ -25,35 +25,34 @@ lanes = {
 }
 
 #Traffic Lights (every ten seconds the lights change )
-laneA_lights = "RED"
-laneB_lights = "RED"
-laneC_lights = "RED"
-laneD_lights = "RED"
-def Lights_Changer():
-    global LaneA_lights, LaneB_Lights, LaneD_lights, LaneC_lights
-    Flag = True
+LaneA_lights = "RED"
+LaneB_lights = "RED"
+LaneC_lights = "RED"
+LaneD_lights = "RED"
+def lights_changer():
+    global LaneA_lights, LaneB_lights, LaneD_lights, LaneC_lights
+    flag = True
     while True :
-        if Flag == True :
+        if flag :
             LaneA_lights = "GREEN"
-            LaneB_Lights = "RED"
+            LaneB_lights = "RED"
             LaneD_lights = "RED"
             LaneC_lights = "GREEN"
-            print("A:",LaneA_lights,"B:",LaneB_Lights,"D:",LaneD_lights,"C:",LaneC_lights,"\n")
+            print("A:",LaneA_lights,"B:",LaneB_lights,"D:",LaneD_lights,"C:",LaneC_lights,"\n")
 
-            Flag = False
+            flag = False
             time.sleep(9)
         else :
             LaneA_lights = "RED"
-            LaneB_Lights = "GREEN"
+            LaneB_lights = "GREEN"
             LaneD_lights = "GREEN"
             LaneC_lights = "RED"
-            print("A:",LaneA_lights,"B:",LaneB_Lights,"D:",LaneD_lights,"C:",LaneC_lights,"\n")
-            Flag = True
+            print("A:",LaneA_lights,"B:",LaneB_lights,"D:",LaneD_lights,"C:",LaneC_lights,"\n")
+            flag = True
             time.sleep(9)
 
 
 def generator():
-    global i
     i =0
     while True :
         #for the non priority lanes (cars are generated every 10 seconds)
@@ -76,53 +75,53 @@ def generator():
 
         time.sleep(5)
 def traversal():
-    global LaneA_lights,LaneB_Lights,LaneD_lights,LaneC_lights
+    global LaneA_lights,LaneB_lights,LaneD_lights,LaneC_lights
 
     while True :
         if LaneA_lights == "GREEN" :
 
-            if not lanes["AL2"].isEmpty() :
+            if not lanes["AL2"].is_empty() :
                 car = lanes["AL2"].dequeue()
                 lanes["BL1"].enqueue(car)
                 return"AL2 car moved to BL1"
 
-            elif not lanes["AL3"].isEmpty():
+            elif not lanes["AL3"].is_empty():
                 car = lanes["AL3"].dequeue()
                 lanes["CL1"].enqueue(car)
                 return"AL3 moved to CL1"
 
-        if LaneB_Lights == "GREEN" :
+        if LaneB_lights == "GREEN" :
 
-            if not lanes["BL2"].isEmpty() :
+            if not lanes["BL2"].is_empty() :
                 car = lanes["BL2"].dequeue()
                 lanes["AL1"].enqueue(car)
                 return"BL2 car moved to AL1"
 
-            elif not lanes["BL3"].isEmpty():
+            elif not lanes["BL3"].is_empty():
                 car = lanes["BL3"].dequeue()
                 lanes["DL1"].enqueue(car)
                 return"BL3 car moved to DL1"
 
         if LaneD_lights == "GREEN" :
 
-            if not lanes["DL2"].isEmpty() :
+            if not lanes["DL2"].is_empty() :
                 car = lanes["DL2"].dequeue()
                 lanes["CL1"].enqueue(car)
                 return"DL2 car moved to CL1"
 
-            elif not lanes["DL3"].isEmpty():
+            elif not lanes["DL3"].is_empty():
                 car = lanes["DL3"].dequeue()
                 lanes["AL1"].enqueue(car)
                 return"DL3 car moved to AL1"
 
         if LaneC_lights == "GREEN" :
 
-            if not lanes["CL2"].isEmpty() :
+            if not lanes["CL2"].is_empty() :
                 car = lanes["CL2"].dequeue()
                 lanes["DL1"].enqueue(car)
                 return"CL2 car moved to DL1"
 
-            elif not lanes["CL3"].isEmpty():
+            elif not lanes["CL3"].is_empty():
                 car = lanes["CL3"].dequeue()
                 lanes["BL1"].enqueue(car)
                 return"CL3 car moved to BL1"
