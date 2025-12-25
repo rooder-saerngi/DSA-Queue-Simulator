@@ -16,12 +16,28 @@ class Queue:
         return len(self.queue)
     def __str__(self):
         return str(self.queue)
+
+class sQueue:
+    def __init__(self):
+        self.queue = []
+    def Senqueue(self, element):
+        self.queue.append(element)
+    def Sdequeue(self):
+        if self.is_empty():
+            return None
+        return self.queue.pop(0)
+    def Sis_empty(self):
+        return len(self.queue) == 0
+    def Ssize(self):
+        return len(self.queue)
+    def __str__(self):
+        return str(self.queue)
 #creating a queue for the lanes
 lanes = {
-    "AL1": Queue(), "AL2": Queue(), "AL3": Queue(),
-    "BL1": Queue(), "BL2": Queue(), "BL3": Queue(),
-    "CL1": Queue(), "CL2": Queue(), "CL3": Queue(),
-    "DL1": Queue(), "DL2": Queue(), "DL3": Queue(),
+    "AL1": Queue(), "AL2": sQueue(), "AL3": Queue(),
+    "BL1": Queue(), "BL2": sQueue(), "BL3": Queue(),
+    "CL1": Queue(), "CL2": sQueue(), "CL3": Queue(),
+    "DL1": Queue(), "DL2": sQueue(), "DL3": Queue(),
 }
 
 #Traffic Lights (every ten seconds the lights change )
