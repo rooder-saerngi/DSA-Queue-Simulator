@@ -1,4 +1,5 @@
-﻿# assignment-1
+﻿# dsa_queue_simulator
+ 
 
 This File contains the workings and description of the assignment 
 
@@ -22,6 +23,7 @@ the main functions in this are :
 2.simulator.py :
 work in progress 
 going to implemnt visualisation of the traffic using pygame 
+
 
 
 
