@@ -69,23 +69,21 @@ lanes = {
 moves = VehicleQueue()
 
 lane_exit = {
-
-
-    # A lanes
-    "AL2": "BL1",  # AL2 feeds BL1
-    "AL3": "CL1",  # AL3 feeds CL1
+     # A lanes
+    "AL2": "BL1",  
+    "AL3": "CL1",  
 
     # B lanes
-    "BL2": "AL1",  # BL2 feeds AL1
-    "BL3": "DL1",  # BL3 feeds DL1
+    "BL2": "AL1",  
+    "BL3": "DL1", 
 
     # C lanes
-    "CL2": "DL1",  # CL2 feeds DL1
-    "CL3": "AL1",  # CL3 feeds AL1
+    "CL2": "DL1", 
+    "CL3": "AL1",  
 
     # D lanes
-    "DL2": "BL1",  # DL2 feeds BL1 (assuming this completes the pattern)
-    "DL3": "CL1",  # DL3 feeds CL1
+    "DL2": "BL1",  
+    "DL3": "CL1",  
 }
 
 # Traffic lights initialization
