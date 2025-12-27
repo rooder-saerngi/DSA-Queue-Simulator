@@ -175,6 +175,23 @@ def move_car(lane_name):
         return True
     return False
 
+def stats_display():
+    """Display current lane statistics."""
+    while True:
+        time.sleep(10)
+        print("\n" + "="*60)
+        print("LANE STATISTICS & ROUTES:")
+        print("="*60)
+        for lane_name in sorted(lanes.keys()):
+            if "L1" in lane_name:
+                continue  # Skip entry lanes
+            size = lanes[lane_name].size()
+            target = lane_exit.get(lane_name, "N/A")
+            lane_type = "Priority" if "L2" in lane_name else "Left Turn"
+            print(f"{lane_name} -> {target} ({lane_type}): {size} vehicles")
+        print(f"Moves pending: {moves.size()}")
+        print("="*60 + "\n")
+
 
 def traversal():
     global LaneA_lights, LaneB_lights, LaneC_lights, LaneD_lights
@@ -216,6 +233,7 @@ if __name__ == "__main__":
     threading.Thread(target=lights_changer, daemon=True).start()
     threading.Thread(target=generator, daemon=True).start()
     threading.Thread(target=traversal, daemon=True).start()
+    threading.Thread(target=stats_display, daemon=True).start()
 
 
     try:
