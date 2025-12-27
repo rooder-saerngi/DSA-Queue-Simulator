@@ -1,8 +1,8 @@
 import time
 import threading
 
+# ------------------- QUEUE CLASSES -------------------
 
-# Making the class for Queue
 class VehicleQueue:
     def __init__(self):
         self.queue = []
@@ -27,17 +27,17 @@ class VehicleQueue:
 
 class PriorityQueue:
     def __init__(self, max_size=10):
-        self.queue = []  # Will store tuples: (priority, element)
+        self.queue = []  # Store tuples: (priority, element)
         self.max_size = max_size
 
     def enqueue(self, element, priority=0):
         self.queue.append((priority, element))
-        self.queue.sort(key=lambda x: x[0])  # Sort by priority
+        self.queue.sort(key=lambda x: x[0])
 
     def dequeue(self):
         if self.is_empty():
             return None
-        return self.queue.pop(0)[1]  # Return element only
+        return self.queue.pop(0)[1]
 
     def size(self):
         return len(self.queue)
@@ -58,7 +58,8 @@ class PriorityQueue:
         return str([elem for _, elem in self.queue])
 
 
-# Creating a queue for the lanes
+# ------------------- LANES & MOVES -------------------
+
 lanes = {
     "AL1": VehicleQueue(), "AL2": PriorityQueue(), "AL3": VehicleQueue(),
     "BL1": VehicleQueue(), "BL2": PriorityQueue(), "BL3": VehicleQueue(),
@@ -68,13 +69,25 @@ lanes = {
 
 moves = VehicleQueue()
 
-# Traffic light states
+# Exit mapping: all cars go straight
+lane_exit = {
+    "AL2": "AL1",
+    "AL3": "AL1",
+    "BL2": "BL1",
+    "BL3": "BL1",
+    "CL2": "CL1",
+    "CL3": "CL1",
+    "DL2": "DL1",
+    "DL3": "DL1",
+}
+
+# ------------------- TRAFFIC LIGHTS -------------------
+
 LaneA_lights = "RED"
 LaneB_lights = "RED"
 LaneC_lights = "RED"
 LaneD_lights = "RED"
 flag = True
-
 
 def lights_changer():
     global LaneA_lights, LaneB_lights, LaneC_lights, LaneD_lights, flag
@@ -97,115 +110,86 @@ def lights_changer():
             flag = True
             time.sleep(9)
 
+# ------------------- CAR GENERATOR -------------------
+
+added = VehicleQueue()
 
 def generator():
+    global added
     i = 0
     while True:
-        # For the non-priority lanes (cars are generated every 10 seconds)
-        lanes["AL3"].enqueue(f"car_AL3_{i}")
-        lanes["BL3"].enqueue(f"car_BL3_{i}")
-        lanes["CL3"].enqueue(f"car_CL3_{i}")
-        lanes["DL3"].enqueue(f"car_DL3_{i}")
-        print(f"Generated cars {i} in AL3, BL3, CL3, DL3\n")
+        # Generate non-priority L3 lanes every 10 seconds
+        for lane_name in ["AL3", "BL3", "CL3", "DL3"]:
+            lanes[lane_name].enqueue(f"car_{lane_name}_{i}")
+            print(f"Generated cars {i} in AL3, BL3, CL3, DL3")
+            added.enqueue(f"car in {lane_name}")
 
         time.sleep(10)
 
-        # For the priority lanes (cars are generated every 5 seconds)
-        al2_size = lanes["AL2"].size()
+        # Generate priority L2 lanes with size-based priority
+        for lane_name in ["AL2", "BL2", "CL2", "DL2"]:
+            lane = lanes[lane_name]
+            priority = -10 if lane.size() > 10 else 0
+            lane.enqueue(f"car_{lane_name}_{i}", priority=priority)
+            print(f"Generated cars {i} in {lane_name}")
+            added.enqueue(f"car in {lane_name}")
 
-        # AL2 gets priority based on queue size
-        if al2_size > 10:
-            lanes["AL2"].enqueue(f"car_AL2_{i}", priority=-10)  # HIGH priority
-        else:
-            lanes["AL2"].enqueue(f"car_AL2_{i}", priority=0)  # Normal priority
-
-        # Other priority lanes
-        lanes["BL2"].enqueue(f"car_BL2_{i}", priority=0)
-        lanes["CL2"].enqueue(f"car_CL2_{i}", priority=0)
-        lanes["DL2"].enqueue(f"car_DL2_{i}", priority=0)
-
-        print(f"Generated cars {i} in AL2, BL2, CL2, DL2\n")
         i += 1
+        time.sleep(10)
 
-        time.sleep(5)
+# ------------------- PRIORITY & MOVEMENT -------------------
 
+def set_priority(lane_name):
+    """Set priority for an L2 lane based on its size."""
+    lane = lanes[lane_name]
+    if lane.size() > 10:
+        lane.change_priority(-10)  # High priority
+    else:
+        lane.change_priority(0)    # Normal priority
+
+def move_car(lane_name):
+    """Dequeue from a lane and enqueue to its straight exit."""
+    lane = lanes[lane_name]
+    if not lane.is_empty():
+        car = lane.dequeue()
+        target_lane = lane_exit[lane_name]
+        lanes[target_lane].enqueue(car)
+        print(f"{lane_name} car moved to {target_lane}")
+        moves.enqueue(f"{lane_name}->{target_lane}")
+
+# ------------------- TRAVERSAL -------------------
 
 def traversal():
     global LaneA_lights, LaneB_lights, LaneC_lights, LaneD_lights
-    global moves
 
     while True:
-        al2_size = lanes["AL2"].size()
-        priority_mode = al2_size > 10
+        # Update priorities for all L2 lanes
+        for l2_lane in ["AL2", "BL2", "CL2", "DL2"]:
+            set_priority(l2_lane)
 
-        # Update AL2 priority in the queue itself
-        if priority_mode:
-            lanes["AL2"].change_priority(-10)  # Set to highest priority
-        else:
-            lanes["AL2"].change_priority(0)  # Set to normal priority
+            # If L2 lane has more than 10 cars, move excess to L1 straight
+            lane = lanes[l2_lane]
+            while lane.size() > 10:
+                print(f"{l2_lane} has more than 10 cars, moving excess to {lane_exit[l2_lane]}")
+                move_car(l2_lane)
 
+        # Traffic light green logic - straight only
         if LaneA_lights == "GREEN":
-            if priority_mode:
-                # Serve AL2 with priority
-                if not lanes["AL2"].is_empty():
-                    car = lanes["AL2"].dequeue()
-                    lanes["BL1"].enqueue(car)
-                    print("PRIORITY: AL2 car moved to BL1")
-                    moves.enqueue("AL2->BL1")
-            else:
-                if not lanes["AL2"].is_empty():
-                    car = lanes["AL2"].dequeue()
-                    lanes["BL1"].enqueue(car)
-                    print("AL2 car moved to BL1")
-                    moves.enqueue("AL2->BL1")
-
-                if not lanes["AL3"].is_empty():
-                    car = lanes["AL3"].dequeue()
-                    lanes["CL1"].enqueue(car)
-                    print("AL3 car moved to CL1")
-                    moves.enqueue("AL3->CL1")
-
+            move_car("AL2")
+            move_car("AL3")
         if LaneB_lights == "GREEN":
-            if not lanes["BL2"].is_empty():
-                car = lanes["BL2"].dequeue()
-                lanes["CL1"].enqueue(car)
-                print("BL2 car moved to CL1")
-                moves.enqueue("BL2->CL1")
-
-            elif not lanes["BL3"].is_empty():
-                car = lanes["BL3"].dequeue()
-                lanes["AL1"].enqueue(car)
-                print("BL3 car moved to AL1")
-                moves.enqueue("BL3->AL1")
-
-        if LaneD_lights == "GREEN":
-            if not lanes["DL2"].is_empty():
-                car = lanes["DL2"].dequeue()
-                lanes["CL1"].enqueue(car)
-                print("DL2 car moved to CL1")
-                moves.enqueue("DL2->CL1")
-
-            elif not lanes["DL3"].is_empty():
-                car = lanes["DL3"].dequeue()
-                lanes["AL1"].enqueue(car)
-                print("DL3 car moved to AL1")
-                moves.enqueue("DL3->AL1")
-
+            move_car("BL2")
+            move_car("BL3")
         if LaneC_lights == "GREEN":
-            if not lanes["CL2"].is_empty():
-                car = lanes["CL2"].dequeue()
-                lanes["DL1"].enqueue(car)
-                print("CL2 car moved to DL1")
-                moves.enqueue("CL2->DL1")
-
-            elif not lanes["CL3"].is_empty():
-                car = lanes["CL3"].dequeue()
-                lanes["BL1"].enqueue(car)
-                print("CL3 car moved to BL1")
-                moves.enqueue("CL3->BL1")
+            move_car("CL2")
+            move_car("CL3")
+        if LaneD_lights == "GREEN":
+            move_car("DL2")
+            move_car("DL3")
 
         time.sleep(1)
 
+# ------------------- MAIN -------------------
 
 if __name__ == "__main__":
     print("Running Traffic Generator directly")
