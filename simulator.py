@@ -41,6 +41,7 @@ TEXT_COLOR = (255, 255, 255)
 GREEN_LIGHT = (0, 255, 0)
 RED_LIGHT = (255, 0, 0)
 
+
 # Lanes positions - where cars wait BEFORE entering intersection
 lane_pos = {
     # Lane A (BOTTOM) - cars wait at bottom, facing UP
@@ -62,50 +63,52 @@ lane_pos = {
 
 # Lane directions for queueing (AWAY from intersection)
 lane_dir = {
-    "AL3": (0, 1), "AL2": (0, 1),
-    "BL3": (-1, 0), "BL2": (-1, 0),
-    "CL3": (0, -1), "CL2": (0, -1),
-    "DL3": (1, 0), "DL2": (1, 0),
+    "AL3": (0, 1), "AL2": (0, 1),  
+    "BL3": (-1, 0), "BL2": (-1, 0), 
+    "CL3": (0, -1), "CL2": (0, -1),  
+    "DL3": (1, 0), "DL2": (1, 0),  
 }
 
 # Intersection entry points - where cars enter the intersection edge
 intersection_approach = {
-
+    # A (from BOTTOM) approaches from SOUTH side of intersection
     "AL2": (WIDTH // 2 - 20, HEIGHT // 2 + 80),
     "AL3": (WIDTH // 2 - 80, HEIGHT // 2 + 80),
 
-
+    # B (from LEFT) approaches from WEST side of intersection
     "BL2": (WIDTH // 2 - 80, HEIGHT // 2 - 20),
     "BL3": (WIDTH // 2 - 80, HEIGHT // 2 - 80),
 
-
+    # C (from TOP) approaches from NORTH side of intersection
     "CL2": (WIDTH // 2 + 20, HEIGHT // 2 - 80),
     "CL3": (WIDTH // 2 + 80, HEIGHT // 2 - 80),
 
-
+    # D (from RIGHT) approaches from EAST side of intersection
     "DL2": (WIDTH // 2 + 80, HEIGHT // 2 + 20),
     "DL3": (WIDTH // 2 + 80, HEIGHT // 2 + 80),
 }
 
 
-
 intersection_exit = {
-
+    # To AL1 (BOTTOM/SOUTH exit) - cars heading DOWN
     "AL1": (WIDTH // 2 - 20, HEIGHT // 2 + 80),
 
+    # To BL1 (RIGHT/EAST exit) - cars heading RIGHT
     "BL1": (WIDTH // 2 + 80, HEIGHT // 2 - 20),
 
+    # To CL1 (TOP/NORTH exit) - cars heading UP
     "CL1": (WIDTH // 2 + 20, HEIGHT // 2 - 80),
 
+    # To DL1 (LEFT/WEST exit) - cars heading LEFT
     "DL1": (WIDTH // 2 - 80, HEIGHT // 2 + 20),
 }
 
 # Final destinations (off screen)
 final_destination = {
-    "AL1": (WIDTH // 2 - 20, HEIGHT + 100),
-    "BL1": (WIDTH + 100, HEIGHT // 2 - 20),
-    "CL1": (WIDTH // 2 + 20, -100),
-    "DL1": (-100, HEIGHT // 2 + 20),
+    "AL1": (WIDTH // 2 - 20, HEIGHT + 100),  # Exit BOTTOM (going DOWN/SOUTH)
+    "BL1": (WIDTH + 100, HEIGHT // 2 - 20),  # Exit RIGHT (going RIGHT/EAST)
+    "CL1": (WIDTH // 2 + 20, -100),  # Exit TOP (going UP/NORTH)
+    "DL1": (-100, HEIGHT // 2 + 20),  # Exit LEFT (going LEFT/WEST)
 }
 
 # Map lanes to intersection sides
@@ -154,7 +157,7 @@ def start_move():
     if not move:
         return
 
-
+    # Parse move: "AL2->CL1::car_AL2_5"
     parts = move.split("::")
     route = parts[0]
     car_id = parts[1] if len(parts) > 1 else "unknown"
@@ -309,27 +312,37 @@ def draw_cars():
             pygame.draw.rect(screen, color, (car["x"], car["y"], CAR_W, CAR_H))
             pygame.draw.rect(screen, (255, 255, 255), (car["x"], car["y"], CAR_W, CAR_H), 1)
 
-    # Draw moving cars (same color as when waiting)
+    # Draw moving cars
     for car in moving:
-        color = CAR_COLOR_PRIORITY if car.get("priority") else CAR_COLOR_NORMAL
+        # Different colors for different phases
+        if car["phase"] == 0:
+            color = (255, 200, 0) 
+        elif car["phase"] == 1:
+            color = (255, 100, 0) 
+        elif car["phase"] == 2:
+            color = CAR_COLOR_MOVING 
+        else:
+            color = (100, 255, 100) 
+
         pygame.draw.rect(screen, color, (car["x"], car["y"], CAR_W, CAR_H))
         pygame.draw.rect(screen, (255, 255, 255), (car["x"], car["y"], CAR_W, CAR_H), 2)
+
 
 def draw_stats():
     """Draw statistics panel."""
     panel_x = 10
     panel_y = 10
-    
+
     # Background
     pygame.draw.rect(screen, (0, 0, 0), (panel_x - 5, panel_y - 5, 260, 420))
     pygame.draw.rect(screen, (100, 100, 100), (panel_x - 5, panel_y - 5, 260, 420), 2)
-    
+
     # Title
     title = font.render("Traffic Statistics", True, TEXT_COLOR)
     screen.blit(title, (panel_x, panel_y))
-    
+
     y_offset = panel_y + 30
-    
+
     # Lane statistics with routes
     for lane_name in ["AL2", "AL3", "BL2", "BL3", "CL2", "CL3", "DL2", "DL3"]:
         size = tg.lanes[lane_name].size()
@@ -337,21 +350,21 @@ def draw_stats():
         dest = tg.lane_exit.get(lane_name, "?")
         lane_type = "L2" if "L2" in lane_name else "L3"
         color = CAR_COLOR_PRIORITY if "L2" in lane_name else CAR_COLOR_NORMAL
-        
+
         text = small_font.render(f"{lane_name}→{dest} ({lane_type}): Q={size} V={visual}", True, color)
         screen.blit(text, (panel_x, y_offset))
         y_offset += 20
-    
+
     # Moves pending
     y_offset += 10
     moves_text = small_font.render(f"Moves Pending: {tg.moves.size()}", True, TEXT_COLOR)
     screen.blit(moves_text, (panel_x, y_offset))
-    
+
     # Moving cars
     y_offset += 20
     moving_text = small_font.render(f"Cars Moving: {len(moving)}", True, TEXT_COLOR)
     screen.blit(moving_text, (panel_x, y_offset))
-    
+
     # Phase breakdown
     if moving:
         phase_counts = [0, 0, 0, 0]
@@ -360,13 +373,13 @@ def draw_stats():
         y_offset += 20
         phase_text = small_font.render(f"Phases: {phase_counts}", True, (150, 150, 255))
         screen.blit(phase_text, (panel_x, y_offset))
-    
+
     # Show recent routes (last 5 moving cars)
     y_offset += 30
     route_title = small_font.render("Recent Routes:", True, (200, 200, 200))
     screen.blit(route_title, (panel_x, y_offset))
     y_offset += 20
-    
+
     for i, car in enumerate(moving[-5:]):
         route = f"{car['src']}→{car['dst']}"
         # Check if it's an invalid route
@@ -375,7 +388,7 @@ def draw_stats():
             route += " ERR!"
         else:
             route_color = (0, 255, 0)
-        
+
         route_text = small_font.render(route, True, route_color)
         screen.blit(route_text, (panel_x, y_offset))
         y_offset += 18
@@ -389,9 +402,14 @@ def draw():
     draw_stats()
     pygame.display.flip()
 
+
 # Main loop
 MOVE_TIMER = 0
 FPS = 60
+
+print("[SIMULATOR] Starting visualization...")
+print("[SIMULATOR] Screen Layout: A=Bottom, B=Left, C=Top, D=Right")
+print("[SIMULATOR] Close window to exit")
 
 while True:
     for event in pygame.event.get():
@@ -402,11 +420,6 @@ while True:
     MOVE_TIMER += clock.get_time()
     if MOVE_TIMER > 600:
         start_move()
-        MOVE_TIMER = 0
-
-    update_moving()
-    draw()
-    clock.tick(FPS)
         MOVE_TIMER = 0
 
     update_moving()
