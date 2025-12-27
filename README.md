@@ -1,5 +1,6 @@
 ﻿# dsa_queue_simulator
- 
+By-Abhinab Badal(cs-i)
+roll no -04
 
 This project is a traffic management simulator for a 4-way intersection, built to demonstrate how queue data structures can be used to control vehicle flow.
 It combines data structures, multithreading, and real-time visualization using PyGame.
@@ -136,6 +137,7 @@ Simulator Thread
 Renders everything at 60 FPS
 
 All shared data is protected using locks to ensure safety.
+
 
 
 
