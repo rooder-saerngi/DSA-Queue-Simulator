@@ -85,6 +85,14 @@ Lights alternate continuously to prevent congestion and deadlocks
 ├── Road.png                # Optional background image
 └── README.md               # Project documentation
 
+| FILE                     | Purpose                      |
+| -------------------------| ---------------------------- |
+| Traffic_Generator.py     | Core logic                   |          
+| Simulator.py             |  PyGame visualization        |
+| Road.png                 | image                        |
+| README.md                | Project documentation        |
+
+
 to run first install pygame:
 (```pip install pygame```)
 
@@ -118,6 +126,7 @@ Priority sorting: O(k log k)
 Overall per cycle: O(n + k log k)
 
 This is efficient enough for real-time simulation and scales well with traffic size.
+
 
 
 
