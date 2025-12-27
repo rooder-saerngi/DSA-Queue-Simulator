@@ -3,14 +3,14 @@ import sys
 import threading
 import time
 
-# ---------------- START GENERATOR ----------------
+#starting traffic generator 
 import Traffic_Generator as tg
 
 threading.Thread(target=tg.lights_changer, daemon=True).start()
 threading.Thread(target=tg.generator, daemon=True).start()
 threading.Thread(target=tg.traversal, daemon=True).start()
 
-# ---------------- PYGAME SETUP ----------------
+#setting up pygame 
 pygame.init()
 WIDTH, HEIGHT = 1368, 768
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -18,13 +18,13 @@ pygame.display.set_caption("Traffic Simulator")
 clock = pygame.time.Clock()
 bg = pygame.image.load("Road.png").convert()
 
-# ---------------- CONSTANTS ----------------
+#constants
 CAR_W, CAR_H = 50, 30
 SPEED = 4
 INTERSECTION = (684, 384)
 LANE_SPACING = 60
 
-# ---------------- LANES ----------------
+#Lanes
 lane_pos = {
     "AL3": (684, 0), "AL2": (646, 0), "AL1": (646, 760),
     "BL3": (0, 350), "BL2": (0, 384), "BL1": (1360, 384),
@@ -53,12 +53,12 @@ lane_to_intersection = {
     "DL2": "D", "DL3": "D"
 }
 
-# ---------------- STATE ----------------
+#states for the lanes 
 lanes = {k: [] for k in lane_pos}   # VISUAL lanes
 moving = []                         # moving cars
 intersection_busy = {"A": False, "B": False, "C": False, "D": False}
 
-# ---------------- HELPERS ----------------
+# helpers 
 def spawn_car(lane):
     idx = len(lanes[lane])
     bx, by = lane_pos[lane]
@@ -129,9 +129,8 @@ def update_moving():
                     intersection_busy[car["direction"]] = False
 
 
-# ---------------- DRAW ----------------
+#draws the cars and displays the background
 def draw():
-    screen.fill((25, 25, 25))
     screen.blit(bg, (0, 0))
 
     for lane, cars in lanes.items():
@@ -145,7 +144,7 @@ def draw():
     pygame.display.flip()
 
 
-# ---------------- MAIN LOOP ----------------
+#main loop
 MOVE_TIMER = 0
 
 while True:
