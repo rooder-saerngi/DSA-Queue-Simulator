@@ -315,13 +315,79 @@ def draw_cars():
         pygame.draw.rect(screen, color, (car["x"], car["y"], CAR_W, CAR_H))
         pygame.draw.rect(screen, (255, 255, 255), (car["x"], car["y"], CAR_W, CAR_H), 2)
 
+def draw_stats():
+    """Draw statistics panel."""
+    panel_x = 10
+    panel_y = 10
+    
+    # Background
+    pygame.draw.rect(screen, (0, 0, 0), (panel_x - 5, panel_y - 5, 260, 420))
+    pygame.draw.rect(screen, (100, 100, 100), (panel_x - 5, panel_y - 5, 260, 420), 2)
+    
+    # Title
+    title = font.render("Traffic Statistics", True, TEXT_COLOR)
+    screen.blit(title, (panel_x, panel_y))
+    
+    y_offset = panel_y + 30
+    
+    # Lane statistics with routes
+    for lane_name in ["AL2", "AL3", "BL2", "BL3", "CL2", "CL3", "DL2", "DL3"]:
+        size = tg.lanes[lane_name].size()
+        visual = len(lanes.get(lane_name, []))
+        dest = tg.lane_exit.get(lane_name, "?")
+        lane_type = "L2" if "L2" in lane_name else "L3"
+        color = CAR_COLOR_PRIORITY if "L2" in lane_name else CAR_COLOR_NORMAL
+        
+        text = small_font.render(f"{lane_name}→{dest} ({lane_type}): Q={size} V={visual}", True, color)
+        screen.blit(text, (panel_x, y_offset))
+        y_offset += 20
+    
+    # Moves pending
+    y_offset += 10
+    moves_text = small_font.render(f"Moves Pending: {tg.moves.size()}", True, TEXT_COLOR)
+    screen.blit(moves_text, (panel_x, y_offset))
+    
+    # Moving cars
+    y_offset += 20
+    moving_text = small_font.render(f"Cars Moving: {len(moving)}", True, TEXT_COLOR)
+    screen.blit(moving_text, (panel_x, y_offset))
+    
+    # Phase breakdown
+    if moving:
+        phase_counts = [0, 0, 0, 0]
+        for car in moving:
+            phase_counts[car["phase"]] += 1
+        y_offset += 20
+        phase_text = small_font.render(f"Phases: {phase_counts}", True, (150, 150, 255))
+        screen.blit(phase_text, (panel_x, y_offset))
+    
+    # Show recent routes (last 5 moving cars)
+    y_offset += 30
+    route_title = small_font.render("Recent Routes:", True, (200, 200, 200))
+    screen.blit(route_title, (panel_x, y_offset))
+    y_offset += 20
+    
+    for i, car in enumerate(moving[-5:]):
+        route = f"{car['src']}→{car['dst']}"
+        # Check if it's an invalid route
+        if car['src'][0] == car['dst'][0]:
+            route_color = (255, 0, 0)
+            route += " ERR!"
+        else:
+            route_color = (0, 255, 0)
+        
+        route_text = small_font.render(route, True, route_color)
+        screen.blit(route_text, (panel_x, y_offset))
+        y_offset += 18
+
+
 def draw():
     """Main draw function."""
     draw_background()
     draw_traffic_lights()
     draw_cars()
+    draw_stats()
     pygame.display.flip()
-
 
 # Main loop
 MOVE_TIMER = 0
