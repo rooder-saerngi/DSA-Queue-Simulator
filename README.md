@@ -79,12 +79,6 @@ B & D lanes turn green together (5 seconds)
 
 Lights alternate continuously to prevent congestion and deadlocks
 
-.
-├── Traffic_Generator.py    # Core logic (queues, lights, vehicle generation)
-├── Simulator.py            # PyGame visualization
-├── Road.png                # Optional background image
-└── README.md               # Project documentation
-
 | FILE                     | Purpose                      |
 | -------------------------| ---------------------------- |
 | Traffic_Generator.py     | Core logic                   |          
@@ -94,9 +88,9 @@ Lights alternate continuously to prevent congestion and deadlocks
 
 
 to run first install pygame:
-(```pip install pygame```)
+```pip install pygame```
 
-then run (```simulator.py```)
+then run ```simulator.py```
 
 Key functions 
 Traffic_Generator.py
@@ -126,6 +120,22 @@ Priority sorting: O(k log k)
 Overall per cycle: O(n + k log k)
 
 This is efficient enough for real-time simulation and scales well with traffic size.
+
+Threading Model
+
+Generator Thread
+Creates vehicles every few seconds
+
+Traffic Light Thread
+Alternates lights every 5 seconds
+
+Traversal Thread
+Moves vehicles based on priority and lights
+
+Simulator Thread
+Renders everything at 60 FPS
+
+All shared data is protected using locks to ensure safety.
 
 
 
