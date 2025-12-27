@@ -1,7 +1,7 @@
 import time
 import threading
 
-# ------------------- QUEUE CLASSES -------------------
+#Making classes for the VehicleQueue 
 
 class VehicleQueue:
     def __init__(self):
@@ -58,8 +58,8 @@ class PriorityQueue:
         return str([elem for _, elem in self.queue])
 
 
-# ------------------- LANES & MOVES -------------------
-
+#making a dictionary for the lanes and lane exits 
+#lanes 
 lanes = {
     "AL1": VehicleQueue(), "AL2": PriorityQueue(), "AL3": VehicleQueue(),
     "BL1": VehicleQueue(), "BL2": PriorityQueue(), "BL3": VehicleQueue(),
@@ -81,7 +81,7 @@ lane_exit = {
     "DL3": "DL1",
 }
 
-# ------------------- TRAFFIC LIGHTS -------------------
+#traffic lights initialization 
 
 LaneA_lights = "RED"
 LaneB_lights = "RED"
@@ -110,7 +110,7 @@ def lights_changer():
             flag = True
             time.sleep(9)
 
-# ------------------- CAR GENERATOR -------------------
+#generator for the vehicles in each lane 
 
 added = VehicleQueue()
 
@@ -118,7 +118,7 @@ def generator():
     global added
     i = 0
     while True:
-        # Generate non-priority L3 lanes every 10 seconds
+        # generates non-priority L3 lanes every 10 seconds
         for lane_name in ["AL3", "BL3", "CL3", "DL3"]:
             lanes[lane_name].enqueue(f"car_{lane_name}_{i}")
             print(f"Generated cars {i} in AL3, BL3, CL3, DL3")
@@ -126,7 +126,7 @@ def generator():
 
         time.sleep(10)
 
-        # Generate priority L2 lanes with size-based priority
+        # generates priority L2 lanes with size-based priority
         for lane_name in ["AL2", "BL2", "CL2", "DL2"]:
             lane = lanes[lane_name]
             priority = -10 if lane.size() > 10 else 0
@@ -137,8 +137,7 @@ def generator():
         i += 1
         time.sleep(10)
 
-# ------------------- PRIORITY & MOVEMENT -------------------
-
+#priotity setter 
 def set_priority(lane_name):
     """Set priority for an L2 lane based on its size."""
     lane = lanes[lane_name]
@@ -146,7 +145,7 @@ def set_priority(lane_name):
         lane.change_priority(-10)  # High priority
     else:
         lane.change_priority(0)    # Normal priority
-
+#traversal for the cars 
 def move_car(lane_name):
     """Dequeue from a lane and enqueue to its straight exit."""
     lane = lanes[lane_name]
@@ -157,7 +156,6 @@ def move_car(lane_name):
         print(f"{lane_name} car moved to {target_lane}")
         moves.enqueue(f"{lane_name}->{target_lane}")
 
-# ------------------- TRAVERSAL -------------------
 
 def traversal():
     global LaneA_lights, LaneB_lights, LaneC_lights, LaneD_lights
@@ -189,7 +187,7 @@ def traversal():
 
         time.sleep(1)
 
-# ------------------- MAIN -------------------
+#so that the file doesnt auto run while being imported in the simulator 
 
 if __name__ == "__main__":
     print("Running Traffic Generator directly")
