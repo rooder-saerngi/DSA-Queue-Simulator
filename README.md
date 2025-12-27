@@ -1,28 +1,37 @@
 ﻿# dsa_queue_simulator
  
 
-This File contains the workings and description of the assignment 
+This project is a traffic management simulator for a 4-way intersection, built to demonstrate how queue data structures can be used to control vehicle flow.
+It combines data structures, multithreading, and real-time visualization using PyGame.
 
-in this project there are two main files :
-1.Traffic_Generator.py
-2.simulator.py
+Features
 
-1.Traffic_Generator.py:
+Queue-based vehicle handling
+Custom VehicleQueue and PriorityQueue classes manage cars in each lane.
 
-Imports Time and threading for multithreading 
-contains the code consisting of 12 queues named A,B,C,D lanes with L1,L2,L3 and L2 being the priority lane and L1 and L3 being normal lanes 
-cars get generated with the generator() function in L2 and L3 and L1 is lane where the incoming cars are enqueued.
+Priority lane support (L2)
+When more than 10 vehicles are waiting in a priority lane, it automatically gets higher priority.
 
-the main functions in this are :
-1.Light_Changer() - changes the lights every couple of seconds from the two states of RED and GREEN 
+Traffic light synchronization
+Lanes A & C and B & D alternate green lights to avoid deadlock.
 
-2.generator() - generates cars every couple seconds, every 10 seconds for the Non priority Lane (L3) and every 5 seconds for the priority lane (L2)
+Real-time visualization
+Vehicles, lanes, and traffic lights are rendered using PyGame.
 
-3.Traversal() -implements traversal from one lane to another like BL2 to AL1, CL3 to AL1 
+Thread-safe execution
+Multiple threads run safely using locks to prevent race conditions.
 
-2.simulator.py :
-work in progress 
-going to implemnt visualisation of the traffic using pygame 
+
+Data Structures Used:
+
+| Data Structure   | Implementation        | Purpose               |
+| ---------------- | --------------------- | --------------------- |
+| `VehicleQueue`   | Custom FIFO queue     | Normal lanes (L1, L3) |
+| `PriorityQueue`  | Custom priority queue | Priority lanes (L2)   |
+| `threading.Lock` | Python lock           | Ensures thread safety |
+
+
+
 
 
 
